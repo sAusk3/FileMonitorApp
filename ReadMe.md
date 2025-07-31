@@ -8,7 +8,7 @@ A minimal Qt C++ application that cyclically creates and deletes files in a fold
 - **State Machine**: Monitors the directory and updates UI indicators:
   - Green: 1–20 files.
   - Red: 0 files.
-  - Yellow: >20 files.
+  - Orange: >20 files.
 - **UI**:
   - Button to choose the folder for file operations.
   - Button to start/stop file creation/deletion.

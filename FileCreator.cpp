@@ -11,7 +11,7 @@ FileCreator::FileCreator(const QString &folderPath, QObject *parent)
 }
 
 void FileCreator::startCreating() {
-    timer->start(5000); // Default 5 seconds
+    timer->start(1000); // Default 5 seconds
 }
 
 void FileCreator::stopCreating() {

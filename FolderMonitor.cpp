@@ -16,24 +16,24 @@ FolderMonitor::FolderMonitor(const QString &folderPath, QObject *parent)
     stateMachine = new QStateMachine(this);
     QState *redState = new QState();
     QState *greenState = new QState();
-    QState *yellowState = new QState();
+    QState *orangeState = new QState();
 
     // Define state properties
     redState->assignProperty(this, "state", "red");
     greenState->assignProperty(this, "state", "green");
-    yellowState->assignProperty(this, "state", "yellow");
+    orangeState->assignProperty(this, "state", "orange");
 
     // Define transitions
     redState->addTransition(this, &FolderMonitor::stateChanged, greenState);
     greenState->addTransition(this, &FolderMonitor::stateChanged, redState);
-    greenState->addTransition(this, &FolderMonitor::stateChanged, yellowState);
-    yellowState->addTransition(this, &FolderMonitor::stateChanged, greenState);
-    yellowState->addTransition(this, &FolderMonitor::stateChanged, redState);
+    greenState->addTransition(this, &FolderMonitor::stateChanged, orangeState);
+    orangeState->addTransition(this, &FolderMonitor::stateChanged, greenState);
+    orangeState->addTransition(this, &FolderMonitor::stateChanged, redState);
 
     // Start state machine
     stateMachine->addState(redState);
     stateMachine->addState(greenState);
-    stateMachine->addState(yellowState);
+    stateMachine->addState(orangeState);
     stateMachine->setInitialState(redState);
     stateMachine->start();
 
@@ -62,7 +62,7 @@ void FolderMonitor::updateState() {
     if (fileCount == 0) {
         newState = "red";
     } else if (fileCount > 20) {
-        newState = "yellow";
+        newState = "orange";
     } else {
         newState = "green";
     }

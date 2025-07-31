@@ -21,11 +21,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRunning(false) 
     openFileButton = new QPushButton("Open File", this);
     creationIntervalSpinBox = new QSpinBox(this);
     creationIntervalSpinBox->setRange(1000, 10000); // 1-10 seconds
-    creationIntervalSpinBox->setValue(5000); // Default 5 seconds
+    creationIntervalSpinBox->setValue(1000); // Default 1 second
     creationIntervalSpinBox->setSuffix(" ms");
     deletionIntervalSpinBox = new QSpinBox(this);
     deletionIntervalSpinBox->setRange(1000, 10000); // 1-10 seconds
-    deletionIntervalSpinBox->setValue(6000); // Default 6 seconds
+    deletionIntervalSpinBox->setValue(5000); // Default 5 seconds
     deletionIntervalSpinBox->setSuffix(" ms");
 
     // Set up dashboard
@@ -127,7 +127,7 @@ void MainWindow::openFile() {
 void MainWindow::updateStatusIndicator(const QString &state, const QStringList &files) {
     QString color;
     if (state == "green") color = "green";
-    else if (state == "yellow") color = "yellow";
+    else if (state == "orange") color = "orange";
     else color = "red";
     statusIndicator->setText(QString("Status: %1 (%2 files)").arg(state).arg(files.count()));
     statusIndicator->setStyleSheet(QString("background-color: %1;").arg(color));

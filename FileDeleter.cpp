@@ -11,7 +11,7 @@ FileDeleter::FileDeleter(const QString &folderPath, QObject *parent)
 }
 
 void FileDeleter::startDeleting() {
-    timer->start(6000); // Default 6 seconds
+    timer->start(5000); // Default 5 seconds
 }
 
 void FileDeleter::stopDeleting() {
