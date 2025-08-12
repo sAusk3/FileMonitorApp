@@ -3,6 +3,7 @@
 #include "FileDeleter.h"
 #include <QDir>
 #include <QFile>
+#include <QDebug>
 
 FileDeleter::FileDeleter(const QString &folderPath, QObject *parent)
     : QObject(parent), folderPath(folderPath), nextToDelete(0) {
@@ -23,14 +24,24 @@ void FileDeleter::setInterval(int interval) {
 }
 
 void FileDeleter::updateFolderPath(const QString &newPath) {
+    std::lock_guard<std::mutex> lock(mutex);
     folderPath = newPath;
 }
 
+//TODO : optimize this algorithm, maybe use map/vector  to use hashing or LIFO 
 void FileDeleter::deleteOldestFile() {
+    std::lock_guard<std::mutex> lock(mutex);
+    if (folderPath.isEmpty()) {
+        qWarning() << "Folder path is not set.";
+        return;
+    }
     QString fileName = QString("file_%1.txt").arg(nextToDelete, 4, 10, QChar('0'));
     QFile file(folderPath + "/" + fileName);
     if (file.exists()) {
         file.remove();
+    }
+    else {
+        qWarning() << "File to delete does not exist:" << file.errorString();
     }
     nextToDelete++;
 }

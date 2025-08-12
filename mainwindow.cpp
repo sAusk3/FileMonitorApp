@@ -93,7 +93,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRunning(false) 
     resize(400, 400);
 
     // Initial dashboard update
-    // TODO : add more logic for handling scenarios when the folder is not empty
     updateStatusIndicator("red", folderMonitor->getCurrentFiles());
 }
 
@@ -139,9 +138,14 @@ void MainWindow::openFile() {
 
 void MainWindow::updateStatusIndicator(const QString &state, const QStringList &files) {
     QString color;
-    if (state == "green") color = "green";
-    else if (state == "orange") color = "orange";
-    else color = "red";
+    auto fileCount = files.count();
+    if (fileCount == 0) {
+        color = "red";
+    } else if (fileCount > 20) {
+        color = "orange";
+    } else {
+        color = "green";
+    }
     statusIndicator->setText(QString("Status: %1 (%2 files)").arg(state).arg(files.count()));
     statusIndicator->setStyleSheet(QString("background-color: %1;").arg(color));
     fileListWidget->clear();

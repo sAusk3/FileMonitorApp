@@ -3,6 +3,7 @@
 #include "FileCreator.h"
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
 FileCreator::FileCreator(const QString &folderPath, QObject *parent)
     : QObject(parent), folderPath(folderPath), fileCounter(0) {
@@ -23,16 +24,26 @@ void FileCreator::setInterval(int interval) {
 }
 
 void FileCreator::updateFolderPath(const QString &newPath) {
+    std::lock_guard<std::mutex> lock(mutex);
     folderPath = newPath;
 }
 
 void FileCreator::createFile() {
+    std::lock_guard<std::mutex> lock(mutex);
+    if (folderPath.isEmpty()) {
+        qWarning() << "Folder path is not set.";
+        return;
+    }
+
     QString fileName = QString("file_%1.txt").arg(fileCounter, 4, 10, QChar('0'));
     QFile file(folderPath + "/" + fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
         out << "Content of file " << fileCounter;
         file.close();
+    }
+    else {
+        qWarning() << "Failed to create file:" << file.errorString();
     }
     fileCounter++;
 }

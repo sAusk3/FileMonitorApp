@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <mutex>
 
 class FileDeleter : public QObject {
     Q_OBJECT
@@ -25,6 +26,7 @@ private:
     QTimer *timer;
     QString folderPath;
     int nextToDelete;
+    std::mutex mutex; // For thread safety
 };
 
 #endif // FILEDELETER_H
