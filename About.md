@@ -111,6 +111,14 @@ The application’s control flow integrates Qt’s event loop with multi-threade
   - Optimize `FolderMonitor`’s file listing by caching results and only updating on `QFileSystemWatcher` events.
   - Reduce `QTimer` overhead by batching file operations for high-frequency intervals.
 
+- **Modern C++ Features**:
+  - Goal is to reduce the dependence on the QT framework and better performance by leveraging the standard library
+  - Try to use `std::thread` instead of `QThread`
+  - Use `std::chorno` instead of `QTimer`
+  - Add a singleton logger which is thread safe and which can log filename, Errors/Warnings into a log file
+  - Try to use `std::async` + `std::future` for scheduling
+  - Add a CMakeLists.txt to choose cmake and ninja as the build system instead of QMake
+
 
 ## Notes
 - The application is designed for macOS, leveraging `macdeployqt` for deployment. Ensure the target system runs macOS 10.13+ for C++17 and Qt compatibility.

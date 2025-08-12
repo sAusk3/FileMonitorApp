@@ -48,7 +48,7 @@ private:
     std::unique_ptr<FileDeleter> fileDeleter;
     std::unique_ptr<FolderMonitor> folderMonitor;
     QString folderPath;
-    bool isRunning;
+    std::atomic<bool> isRunning; // Indicates if file operations are active and can be operated by one thread only
 };
 
 #endif // MAINWINDOW_H

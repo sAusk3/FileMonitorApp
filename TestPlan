@@ -1,0 +1,17 @@
+| Test ID | Scenario          | Steps                                        | Expected Result                                        |
+| ------- | ----------------  | ------------------------------------         | ------------------------------------------------------ |
+| T1      | File generation   | Start operations, set short interval         | Files appear with correct numbering                    |
+| T2      | File deletion     | Start operations, set short delete interval  | Oldest files deleted first                             |
+| T3      | Status transition | Adjust file counts                           | Green <20 & >0, Red =0, Yellow >20                     |
+| T4      | Interval change   | Change intervals during run                  | Thread reacts without restart                          |
+| T5      | Folder change     | Choose different folder                      | Threads operate in new folder                          |
+| T6      | Clear directory   | Click "Empty Folder"                         | All files removed immediately                          |
+| T7      | Open a file.      | Click "Open File"                            | All files removed immediately                          |
+
+Edge Case Scenarios not tested and might differ from OS to OS :
+- What happens if the folder is deleted at runtime ?
+Expected Result : Throw a warning and recreate the folder and continue
+- Inavlid Folder path is choosen or a folder which does not have write access for the user running the program
+- Limit on the number of files that will be created if this keeps running
+TODO : Add a limiter to the number of files
+- Test the above in different OS
