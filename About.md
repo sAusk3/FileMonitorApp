@@ -15,7 +15,6 @@ The application follows a modular, multi-threaded architecture integrated with Q
   
 - **Technology Stack**:
   - **Qt Framework**: Uses Qt 5.7+ or 6.x for GUI (Qt Widgets), threading (`QThread`), state machine (`QStateMachine`), and file system monitoring (`QFileSystemWatcher`).
-  - **C++17**: Employs `std::filesystem` for file operations, `std::unique_ptr` for memory management, `std::optional` for safe file listing, and lambda expressions for signal/slot connections.
   - **macOS Deployment**: Bundled as a `.app` using `macdeployqt`, ensuring portability across macOS systems (10.13+).
 
 - **File Structure**:
