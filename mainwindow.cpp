@@ -11,12 +11,14 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRunning(false) {
     // Set up the main widget and layout
+    // Could not use std::make_unique here as  QT tries to delete this centralWidget
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
 
     // Initialize UI components
     folderButton = new QPushButton("Choose Folder", this);
+    emptyFolderButton = new QPushButton("Empty folder", this);
     toggleButton = new QPushButton("Start Operations", this);
     openFileButton = new QPushButton("Open File", this);
     creationIntervalSpinBox = new QSpinBox(this);
@@ -44,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRunning(false) 
     intervalLayout->addWidget(new QLabel("Deletion Interval:", this));
     intervalLayout->addWidget(deletionIntervalSpinBox);
     mainLayout->addWidget(folderButton);
+    mainLayout->addWidget(emptyFolderButton);
     mainLayout->addWidget(toggleButton);
     mainLayout->addWidget(openFileButton);
     mainLayout->addLayout(intervalLayout);
@@ -56,43 +59,53 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRunning(false) 
 
     // Set up file creator thread
     QThread *creatorThread = new QThread(this);
-    fileCreator = new FileCreator(folderPath);
+    fileCreator = std::make_unique<FileCreator>(folderPath);
     fileCreator->moveToThread(creatorThread);
     creatorThread->start();
 
     // Set up file deleter thread
     QThread *deleterThread = new QThread(this);
-    fileDeleter = new FileDeleter(folderPath);
+    fileDeleter = std::make_unique<FileDeleter>(folderPath);
     fileDeleter->moveToThread(deleterThread);
     deleterThread->start();
 
     // Set up folder monitor (state machine)
-    folderMonitor = new FolderMonitor(folderPath, this);
+    folderMonitor = std::make_unique<FolderMonitor>(folderPath, this);
 
     // Connect signals and slots
     connect(folderButton, &QPushButton::clicked, this, &MainWindow::chooseFolder);
+    connect(emptyFolderButton, &QPushButton::clicked, this, &MainWindow::emptyFolder);
     connect(toggleButton, &QPushButton::clicked, this, &MainWindow::toggleOperations);
     connect(openFileButton, &QPushButton::clicked, this, &MainWindow::openFile);
-    connect(creationIntervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &MainWindow::updateCreationInterval);
-    connect(deletionIntervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &MainWindow::updateDeletionInterval);
-    connect(folderMonitor, &FolderMonitor::stateChanged,
-            this, &MainWindow::updateStatusIndicator);
+    connect(creationIntervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::updateCreationInterval);
+    connect(deletionIntervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::updateDeletionInterval);
+    connect(folderMonitor.get(), &FolderMonitor::stateChanged, this, &MainWindow::updateStatusIndicator);
     connect(this, &MainWindow::destroyed, creatorThread, &QThread::quit);
     connect(this, &MainWindow::destroyed, deleterThread, &QThread::quit);
-    connect(creatorThread, &QThread::finished, fileCreator, &QObject::deleteLater);
-    connect(deleterThread, &QThread::finished, fileDeleter, &QObject::deleteLater);
-    connect(this, &MainWindow::folderPathChanged, fileCreator, &FileCreator::updateFolderPath);
-    connect(this, &MainWindow::folderPathChanged, fileDeleter, &FileDeleter::updateFolderPath);
-    connect(this, &MainWindow::folderPathChanged, folderMonitor, &FolderMonitor::updateFolderPath);
+    connect(creatorThread, &QThread::finished, fileCreator.get(), &QObject::deleteLater);
+    connect(deleterThread, &QThread::finished, fileDeleter.get(), &QObject::deleteLater);
+    connect(this, &MainWindow::folderPathChanged, fileCreator.get(), &FileCreator::updateFolderPath);
+    connect(this, &MainWindow::folderPathChanged, fileDeleter.get(), &FileDeleter::updateFolderPath);
+    connect(this, &MainWindow::folderPathChanged, folderMonitor.get(), &FolderMonitor::updateFolderPath);
 
     // Set window properties
     setWindowTitle("File Monitor Application");
     resize(400, 400);
 
     // Initial dashboard update
+    // TODO : add more logic for handling scenarios when the folder is not empty
     updateStatusIndicator("red", folderMonitor->getCurrentFiles());
+}
+
+void MainWindow::emptyFolder() {
+    QDir dir(folderPath);
+    if (dir.exists()) {
+        dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+        QFileInfoList fileList = dir.entryInfoList();
+        for (const QFileInfo &fileInfo : fileList) {
+            QFile::remove(fileInfo.absoluteFilePath());
+        }
+    }
 }
 
 void MainWindow::chooseFolder() {
@@ -107,12 +120,12 @@ void MainWindow::chooseFolder() {
 void MainWindow::toggleOperations() {
     isRunning = !isRunning;
     if (isRunning) {
-        QMetaObject::invokeMethod(fileCreator, "startCreating", Qt::QueuedConnection);
-        QMetaObject::invokeMethod(fileDeleter, "startDeleting", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(fileCreator.get(), "startCreating", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(fileDeleter.get(), "startDeleting", Qt::QueuedConnection);
         toggleButton->setText("Stop Operations");
     } else {
-        QMetaObject::invokeMethod(fileCreator, "stopCreating", Qt::QueuedConnection);
-        QMetaObject::invokeMethod(fileDeleter, "stopDeleting", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(fileCreator.get(), "stopCreating", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(fileDeleter.get(), "stopDeleting", Qt::QueuedConnection);
         toggleButton->setText("Start Operations");
     }
 }
@@ -136,13 +149,11 @@ void MainWindow::updateStatusIndicator(const QString &state, const QStringList &
 }
 
 void MainWindow::updateCreationInterval(int interval) {
-    QMetaObject::invokeMethod(fileCreator, "setInterval",
-                             Qt::QueuedConnection, Q_ARG(int, interval));
+    QMetaObject::invokeMethod(fileCreator.get(), "setInterval", Qt::QueuedConnection, Q_ARG(int, interval));
 }
 
 void MainWindow::updateDeletionInterval(int interval) {
-    QMetaObject::invokeMethod(fileDeleter, "setInterval",
-                             Qt::QueuedConnection, Q_ARG(int, interval));
+    QMetaObject::invokeMethod(fileDeleter.get(), "setInterval", Qt::QueuedConnection, Q_ARG(int, interval));
 }
 
 void MainWindow::updateFolderPath(const QString &newPath) {

@@ -1,0 +1,46 @@
+develop a minimal UI application using Qt C++ UI framework that cyclically creates and deletes files in a folder while monitoring the folder contents. The requirements for the application are as follows:
+
+- A thread that cyclically generates files with consecutive numbers in the file name in the directory and writes minimal text content to each newly created file
+
+- Another thread that cyclically deletes the oldest file from the directory based on the consecutive number in the file name
+
+- A state machine that cyclically monitors the directory for the number of files and displays the monitoring status in the UI
+
+- Minimal UI with “green,” “yellow,” and “red” indicators:
+
+- “Green” indicator if more than one file is present in the directory
+
+- Display “red” if there are no more files in the directory
+
+- Display “yellow” if there are more than 20 files in the directory
+
+- Adjustable generation interval & deletion interval without stopping threads
+
+Further Things added:
+
+- A dashboard to see the files
+- a button to clear the directory
+- a button to start/stop the operations
+- a button to choose the folder 
+
+
+Testing Questions:
+a. is there a limit to the files that can be created?
+b. Range of time for creation and deletion?
+c. Do I allow deletion faster than creation on a empty folder?
+d. If I understood the translation correctly, the create and delete should work parallely
+
+
+
+
+
+Further TODOs for me:
+- move the widgets to the mainwindow.ui so that they can be adapted
+- understand the difference between qmake and cmake, can a project have both?
+- how to deploy the same application across various platforms?
+- why was it crashing upon using unique_ptr
+- add a button to further stop creation and deletion if needed
+- Log the debugging instructions in a file
+- change the deletion alogrithm so that it does fifo
+- 
+

@@ -32,6 +32,18 @@ A minimal Qt C++ application that cyclically creates and deletes files in a fold
 - `FileMonitorApp.pro`: Qt project file for qmake.
 - `README.md`: This file.
 
+## Usage
+- **Choose Folder**: Click "Choose Folder" to select a directory for file operations (defaults to `monitored_folder` in the project directory).
+- **Start/Stop Operations**: Click "Start Operations" to begin file creation/deletion; click "Stop Operations" to pause.
+- **Open File**: Click "Open File" to select and open a `.txt` file from the monitored folder in the default text editor.
+- **Dashboard**: Shows the status (color indicator and file count) and a list of files in the monitored folder.
+- **Adjust Intervals**: Use the spin boxes to set creation/deletion intervals (1000–10000 ms). Default for Creation is 1000ms and Deletion is 5000ms
+
+## Notes
+- The application uses QThread for file creation/deletion and QStateMachine for monitoring.
+- Files are created as `file_XXXX.txt` (e.g., `file_0001.txt`) and deleted in order.
+- The folder must have write permissions for file operations to succeed.
+
 ## Setting Up and Running in VS Code on macOS
 1. **Install Qt**:
    - Download and install Qt from [www.qt.io](https://www.qt.io).
@@ -99,21 +111,3 @@ A minimal Qt C++ application that cyclically creates and deletes files in a fold
    - Press `F5` or select `Run > Start Debugging` in VS Code to launch the application.
    - Alternatively, run `./FileMonitorApp` from the terminal in the project directory.
 
-7. **Troubleshooting**:
-   - Ensure the Qt bin directory is in your PATH: `export PATH=/Users/youruser/Qt/5.15.2/clang_64/bin:$PATH`.
-   - If the application fails to launch, check that `DYLD_LIBRARY_PATH` includes the Qt library path: `export DYLD_LIBRARY_PATH=/Users/youruser/Qt/5.15.2/clang_64/lib:$DYLD_LIBRARY_PATH`.
-   - Verify that the selected folder has write permissions.
-
-## Usage
-- **Choose Folder**: Click "Choose Folder" to select a directory for file operations (defaults to `monitored_folder` in the project directory).
-- **Start/Stop Operations**: Click "Start Operations" to begin file creation/deletion; click "Stop Operations" to pause.
-- **Open File**: Click "Open File" to select and open a `.txt` file from the monitored folder in the default text editor.
-- **Dashboard**: Shows the status (color indicator and file count) and a list of files in the monitored folder.
-- **Adjust Intervals**: Use the spin boxes to set creation/deletion intervals (1000–10000 ms).
-
-## Notes
-- The application uses QThread for file creation/deletion and QStateMachine for monitoring.
-- Ensure the Qt version matches your qmake path in `tasks.json`.
-- Use Qt AI Assistant in Qt Creator for code optimization or unit test generation if needed.
-- Files are created as `file_XXXX.txt` (e.g., `file_0001.txt`) and deleted in order.
-- The folder must have write permissions for file operations to succeed.
